@@ -25,7 +25,7 @@ def addEvent(request):
 
     elif request.method == 'POST':
         eventname = request.data["eventName"]
-        # todu 根据eventname做聚类处理
+        # todo 根据eventname做聚类处理
         eventdata = {}
         serializer = EventSerializer(data=eventdata)
         if serializer.is_valid():
@@ -34,7 +34,7 @@ def addEvent(request):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-@api_view(['GET'])
+@api_view(['GET', 'POST'])
 @permission_classes((permissions.AllowAny,))
 def getHistory(request):
     """
@@ -53,6 +53,14 @@ def getHistory(request):
             queryset_result = queryset_result|queryset_tmp
         serializer = EventSerializer(queryset_result, many=True)
         return Response(serializer.data)
+
+    elif request.method == 'POST':
+        eventid = request.data["eventid"]
+        openid = request.data["openid"]
+        event = Event.objects.get(id = eventid)
+        uh = UserHistory(eventId=event,openid=openid)
+        uh.save()
+        return Response(status=status.HTTP_201_CREATED)
 
 @api_view(['GET'])
 @permission_classes((permissions.AllowAny,))
