@@ -21,3 +21,4 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('multiDimEvents/', include('multiDimEvents.urls')),
 ]
+

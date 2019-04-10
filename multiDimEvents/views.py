@@ -47,12 +47,15 @@ def getHistory(request):
         eventeds = [i['eventId'] for i in queryresults]
         print(eventeds)
 
-        queryset_result = Event.objects.filter(id = eventeds[0])
-        for i in range(1,len(eventeds)):
-            queryset_tmp = Event.objects.filter(id = eventeds[i])
-            queryset_result = queryset_result|queryset_tmp
-        serializer = EventSerializer(queryset_result, many=True)
-        return Response(serializer.data)
+        if(len(eventeds)>0):
+            queryset_result = Event.objects.filter(id = eventeds[0])
+            for i in range(1,len(eventeds)):
+                queryset_tmp = Event.objects.filter(id = eventeds[i])
+                queryset_result = queryset_result|queryset_tmp
+            serializer = EventSerializer(queryset_result, many=True)
+            return Response(serializer.data)
+        else:
+            Response(status=status.HTTP_400_BAD_REQUEST)
 
     elif request.method == 'POST':
         eventid = request.data["eventid"]
