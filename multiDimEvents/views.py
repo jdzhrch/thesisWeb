@@ -13,16 +13,14 @@ def index(request):
 
 @api_view(['GET', 'POST'])
 @permission_classes((permissions.AllowAny,))
-def addEvent(request):
+def processEvent(request):
     """
     列出所有的event，或创建一个新的 event。
     """
     if request.method == 'GET':
-        eventid = request.query_params.dict()['eventid']
-        events = Event.objects.filter(id=eventid)
+        events = Event.objects.all()[0:10]
         serializer = EventSerializer(events, many=True)
         return Response(serializer.data)
-
     elif request.method == 'POST':
         eventname = request.data["eventName"]
         # todo 根据eventname做聚类处理
@@ -34,6 +32,20 @@ def addEvent(request):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+@api_view(['GET'])
+@permission_classes((permissions.AllowAny,))
+def searchEvent(request):
+    """
+    列出所有的event，或创建一个新的 event。
+    """
+    if request.method == 'GET':
+        searchkeyword = request.query_params.dict()['searchkeyword']
+        events = Event.objects.filter(eventName__contains=searchkeyword)
+        serializer = EventSerializer(events, many=True)
+        return Response(serializer.data)
+    return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
 @api_view(['GET', 'POST'])
 @permission_classes((permissions.AllowAny,))
 def getHistory(request):
@@ -43,15 +55,15 @@ def getHistory(request):
     if request.method == 'GET':
         openid = request.query_params.dict()['openid']
         histories = UserHistory.objects.filter(openid=openid)
-        queryresults = list(histories.values('eventId')) # [{"eventId':1},]
+        queryresults = list(histories.values('eventId'))  # [{"eventId':1},]
         eventeds = [i['eventId'] for i in queryresults]
         print(eventeds)
 
-        if(len(eventeds)>0):
-            queryset_result = Event.objects.filter(id = eventeds[0])
-            for i in range(1,len(eventeds)):
-                queryset_tmp = Event.objects.filter(id = eventeds[i])
-                queryset_result = queryset_result|queryset_tmp
+        if (len(eventeds) > 0):
+            queryset_result = Event.objects.filter(id=eventeds[0])
+            for i in range(1, len(eventeds)):
+                queryset_tmp = Event.objects.filter(id=eventeds[i])
+                queryset_result = queryset_result | queryset_tmp
             serializer = EventSerializer(queryset_result, many=True)
             return Response(serializer.data)
         else:
@@ -60,10 +72,11 @@ def getHistory(request):
     elif request.method == 'POST':
         eventid = request.data["eventid"]
         openid = request.data["openid"]
-        event = Event.objects.get(id = eventid)
-        uh = UserHistory(eventId=event,openid=openid)
+        event = Event.objects.get(id=eventid)
+        uh = UserHistory(eventId=event, openid=openid)
         uh.save()
         return Response(status=status.HTTP_201_CREATED)
+
 
 @api_view(['GET'])
 @permission_classes((permissions.AllowAny,))
@@ -77,6 +90,7 @@ def getCategory(request):
         categories = Category.objects.filter(eventId=eventid).filter(reportVer=reportver)
         serializer = CategorySerializer(categories, many=True)
         return Response(serializer.data)
+
 
 @api_view(['GET'])
 @permission_classes((permissions.AllowAny,))

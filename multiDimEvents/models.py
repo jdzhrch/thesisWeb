@@ -8,6 +8,10 @@ class Event(models.Model):
     # 报告版本，会更新，之所以不用reportDate代替reportVer，原因是integer比date的查询效率一定要高，存储也占得少
     reportVer = models.IntegerField(default=1)
     categoryNum = models.IntegerField(default=0)
+    searchNum = models.IntegerField(default=0)
+
+    class Meta:
+        ordering = ['-searchNum']
 
 
 # 用户查询事件的历史

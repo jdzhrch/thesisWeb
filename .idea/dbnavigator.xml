@@ -24,31 +24,24 @@
     <autoscroll-from-editor value="true" />
     <show-object-properties value="true" />
     <loaded-nodes>
-      <connection connection-id="a3716ccf-c763-4e0b-89d1-61f68168de58">
+      <connection connection-id="49e300ed-1d04-42d9-8402-9ce30dd99898">
         <schema name="django" object-types="index, constraint, column, procedure, function, view, table, dataset trigger" />
       </connection>
     </loaded-nodes>
   </component>
   <component name="DBNavigator.Project.DatabaseConsoleManager">
-    <connection id="a3716ccf-c763-4e0b-89d1-61f68168de58">
-      <console name="Connection" type="STANDARD" schema="mysql" session="Main" />
+    <connection id="49e300ed-1d04-42d9-8402-9ce30dd99898">
+      <console name="Connection 1" type="STANDARD" schema="mysql" session="Main" />
     </connection>
   </component>
   <component name="DBNavigator.Project.DatabaseFileManager">
     <open-files />
   </component>
   <component name="DBNavigator.Project.DatabaseSessionManager">
-    <connection id="a3716ccf-c763-4e0b-89d1-61f68168de58" />
+    <connection id="49e300ed-1d04-42d9-8402-9ce30dd99898" />
   </component>
   <component name="DBNavigator.Project.DatasetFilterManager">
-    <filter-actions connection-id="a3716ccf-c763-4e0b-89d1-61f68168de58" dataset="django.multidimevents_category" active-filter-id="EMPTY_FILTER" />
-    <filter-actions connection-id="a3716ccf-c763-4e0b-89d1-61f68168de58" dataset="django.multidimevents_article" active-filter-id="EMPTY_FILTER">
-      <filter id="fb6b71dd-8293-4220-a23c-17ec58e7e067" name="1" temporary="false" custom-name="false" type="basic" join-type="AND">
-        <condition column="id" operator="=" value="1" active="true" />
-      </filter>
-    </filter-actions>
-    <filter-actions connection-id="a3716ccf-c763-4e0b-89d1-61f68168de58" dataset="django.multidimevents_userhistory" active-filter-id="EMPTY_FILTER" />
-    <filter-actions connection-id="a3716ccf-c763-4e0b-89d1-61f68168de58" dataset="django.multidimevents_event" active-filter-id="EMPTY_FILTER" />
+    <filter-actions connection-id="49e300ed-1d04-42d9-8402-9ce30dd99898" dataset="django.multidimevents_event" active-filter-id="EMPTY_FILTER" />
   </component>
   <component name="DBNavigator.Project.EditorStateManager">
     <last-used-providers />
@@ -73,9 +66,9 @@
   </component>
   <component name="DBNavigator.Project.Settings">
     <connections>
-      <connection id="a3716ccf-c763-4e0b-89d1-61f68168de58" active="true">
+      <connection id="49e300ed-1d04-42d9-8402-9ce30dd99898" active="true">
         <database>
-          <name value="Connection" />
+          <name value="Connection 1" />
           <description value="" />
           <database-type value="MYSQL" />
           <config-type value="BASIC" />
