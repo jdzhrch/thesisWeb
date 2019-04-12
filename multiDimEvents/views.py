@@ -22,7 +22,8 @@ def processEvent(request):
         serializer = EventSerializer(events, many=True)
         return Response(serializer.data)
     elif request.method == 'POST':
-        eventname = request.data["eventName"]
+        eventname = request.data["eventname"]
+        print(eventname)
         # todo 根据eventname做聚类处理
         eventdata = {}
         serializer = EventSerializer(data=eventdata)
@@ -48,7 +49,7 @@ def searchEvent(request):
 
 @api_view(['GET', 'POST'])
 @permission_classes((permissions.AllowAny,))
-def getHistory(request):
+def processHistory(request):
     """
     根据openid找events
     """
@@ -64,12 +65,13 @@ def getHistory(request):
             for i in range(1, len(eventeds)):
                 queryset_tmp = Event.objects.filter(id=eventeds[i])
                 queryset_result = queryset_result | queryset_tmp
-            serializer = EventSerializer(queryset_result, many=True)
+            serializer = EventSerializer(queryset_result, many=True)# 这里是不是把结果去重了？两个相同的eventid好像没有查出两条数据
             return Response(serializer.data)
         else:
             Response(status=status.HTTP_400_BAD_REQUEST)
 
     elif request.method == 'POST':
+        print(request.data)
         eventid = request.data["eventid"]
         openid = request.data["openid"]
         event = Event.objects.get(id=eventid)

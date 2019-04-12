@@ -13,7 +13,7 @@ urlpatterns = [
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     url(r'^processEvent/$', views.processEvent),
     url(r'^searchEvent/$', views.searchEvent),
-    url(r'^getHistory/$', views.getHistory),
+    url(r'^processHistory/$', views.processHistory),
     url(r'^getCategory/$', views.getCategory),
     url(r'^getArticle/$', views.getArticle),
 ]
