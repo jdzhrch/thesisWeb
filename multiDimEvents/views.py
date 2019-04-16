@@ -3,6 +3,7 @@ from rest_framework import status, permissions
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 
+from multiDimEvents import cluster
 from multiDimEvents.models import Event, UserHistory, Category, Article
 from multiDimEvents.serializers import EventSerializer, CategorySerializer, ArticleSerializer
 
@@ -38,6 +39,7 @@ def processEvent(request):
 def searchEvent(request):
     """
     列出所有的event，或创建一个新的 event。
+    目前history的模型采用的方式是同一个user搜索同一个event，会有多条记录
     """
     if request.method == 'GET':
         searchkeyword = request.query_params.dict()['searchkeyword']
@@ -54,6 +56,9 @@ def processHistory(request):
     根据openid找events
     """
     if request.method == 'GET':
+        # 测试sklearn
+        cluster.cluster()
+
         openid = request.query_params.dict()['openid']
         histories = UserHistory.objects.filter(openid=openid)
         queryresults = list(histories.values('eventId'))  # [{"eventId':1},]
@@ -76,6 +81,8 @@ def processHistory(request):
         openid = request.data["openid"]
         event = Event.objects.get(id=eventid)
         uh = UserHistory(eventId=event, openid=openid)
+        event.searchNum = event.searchNum + 1       # 搜索数加一
+        event.save()
         uh.save()
         return Response(status=status.HTTP_201_CREATED)
 

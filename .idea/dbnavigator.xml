@@ -25,7 +25,8 @@
     <show-object-properties value="true" />
     <loaded-nodes>
       <connection connection-id="49e300ed-1d04-42d9-8402-9ce30dd99898">
-        <schema name="django" object-types="index, constraint, column, procedure, function, view, table, dataset trigger" />
+        <schema name="corpus" object-types="table, procedure, constraint, function, column, index, dataset trigger, view" />
+        <schema name="django" object-types="table, procedure, constraint, function, column, index, dataset trigger, view" />
       </connection>
     </loaded-nodes>
   </component>
@@ -41,6 +42,7 @@
     <connection id="49e300ed-1d04-42d9-8402-9ce30dd99898" />
   </component>
   <component name="DBNavigator.Project.DatasetFilterManager">
+    <filter-actions connection-id="49e300ed-1d04-42d9-8402-9ce30dd99898" dataset="corpus.news" active-filter-id="EMPTY_FILTER" />
     <filter-actions connection-id="49e300ed-1d04-42d9-8402-9ce30dd99898" dataset="django.multidimevents_userhistory" active-filter-id="EMPTY_FILTER" />
     <filter-actions connection-id="49e300ed-1d04-42d9-8402-9ce30dd99898" dataset="django.multidimevents_event" active-filter-id="EMPTY_FILTER" />
   </component>
