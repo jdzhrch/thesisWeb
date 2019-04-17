@@ -23,7 +23,7 @@ class UserHistory(models.Model):
 # 一个categoryId只会用于一个event
 class Category(models.Model):
     eventId = models.ForeignKey(Event, on_delete=models.CASCADE)
-    featureList = models.CharField(max_length=200)
+    featureList = models.CharField(max_length=1000)
     reportVer = models.IntegerField(default=1)
     articleNum = models.IntegerField(default=0)
 
@@ -31,7 +31,7 @@ class Category(models.Model):
 #
 class Article(models.Model):
     categoryId = models.ForeignKey(Category, on_delete=models.CASCADE)
-    title = models.CharField(max_length=200)
+    title = models.CharField(max_length=1000)
     url = models.CharField(max_length=400)
-    content = models.TextField(max_length=40000)
+    content = models.TextField(max_length=1000000)
     pv = models.IntegerField(default=0)
