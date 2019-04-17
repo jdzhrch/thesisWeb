@@ -26,12 +26,11 @@ def processEvent(request):
         eventname = request.data["eventname"]
         print(eventname)
         # todo 根据eventname做聚类处理
+        # 测试sklearn
+        cluster.cluster(eventname)
         eventdata = {}
-        serializer = EventSerializer(data=eventdata)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(status=status.HTTP_201_CREATED)
+    return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['GET'])
@@ -56,9 +55,6 @@ def processHistory(request):
     根据openid找events
     """
     if request.method == 'GET':
-        # 测试sklearn
-        cluster.cluster()
-
         openid = request.query_params.dict()['openid']
         histories = UserHistory.objects.filter(openid=openid)
         queryresults = list(histories.values('eventId'))  # [{"eventId':1},]
@@ -73,7 +69,9 @@ def processHistory(request):
             serializer = EventSerializer(queryset_result, many=True)# 这里是不是把结果去重了？两个相同的eventid好像没有查出两条数据
             return Response(serializer.data)
         else:
-            Response(status=status.HTTP_400_BAD_REQUEST)
+            none_result = Event.objects.filter(id=-1)
+            serializer = EventSerializer(none_result, many=True)
+            return Response(serializer.data)
 
     elif request.method == 'POST':
         print(request.data)

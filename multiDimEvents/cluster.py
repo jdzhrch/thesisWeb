@@ -32,7 +32,7 @@ def to_cut_chinese(dm: list) -> list:
         data.append(words)
     return data
 
-def cluster():
+def cluster(eventname):
     """
         将数据源中的中文文本分词后以空格连接，用于sklearn的分词
         :param dm: str的list，每个str是一个article的content
@@ -40,7 +40,7 @@ def cluster():
         """
     params = {
         'format': 'json',
-        'keyword': '小米+折叠屏',
+        'keyword': eventname,
         'num': 10,
         'pn': 1,
     }
@@ -57,10 +57,6 @@ def cluster():
     dm = [c["title"] + c["content"] for c in cursor.fetchall()]
     cursor.execute("SELECT  `url`, `title`, `content` FROM `news` limit 10")# 注意cursor的用法
 '''
-    # 将event写入数据库
-    event = Event(eventName="小米折叠屏", reportVer=1, categoryNum=0, searchNum=1)
-    event.save()
-    # 实际上article写入数据库应该在爬虫代码里，但是先放在这里
 
     # 将一篇分词后的单词集合重新用空格分开，合成字符串，供tfidfvectorizer进行处理
     data = []
@@ -89,6 +85,11 @@ def cluster():
         else:
             articleNumDict[label]=0
 
+
+    # event写入数据库
+    event = Event(eventName=eventname, reportVer=1, categoryNum=n_cluster, searchNum=1)
+    event.save()
+    # category写入数据库
     categories = []
     for i in range(n_cluster):
         print("Cluster %d:" % i, end='')
@@ -103,6 +104,7 @@ def cluster():
     print(af.labels_)
 
 
+    # article写入数据库
     label_index = 0 # af.labels的index
     for articleresult in articleresults:
         article = Article(categoryId=categories[af.labels_[label_index]],title=articleresult['title'], content=articleresult['content'], url=articleresult["webpageUrl"], pv=300)
