@@ -1,12 +1,15 @@
+import re
+
 import jieba
 import requests
 from sklearn.cluster import KMeans, AffinityPropagation
 from sklearn.feature_extraction.text import TfidfVectorizer
 import pymysql
 
+from multiDimEvents import crawler
 from multiDimEvents.models import Event, Article, Category
 
-
+'''
 def to_cut_chinese(dm: list) -> list:
     """
     将数据源中的中文文本分词后以空格连接，用于sklearn的分词
@@ -31,6 +34,8 @@ def to_cut_chinese(dm: list) -> list:
         words = " ".join(seglist)
         data.append(words)
     return data
+'''
+
 
 def cluster(eventname):
     """
@@ -38,17 +43,8 @@ def cluster(eventname):
         :param dm: str的list，每个str是一个article的content
         :return: numpy形式的词语-文本矩阵
         """
-    params = {
-        'format': 'json',
-        'keyword': eventname,
-        'num': 10,
-        'pn': 1,
-    }
-    response = requests.get("http://58.16.248.132:8080/comm_api/search", params=params)
-    print(response.json())
-    articleresults = response.json()
+    articleresults = crawler.crawler(eventname)
     dm = [articleresult["title"] + articleresult["content"] for articleresult in articleresults]
-
 
     # 以下应该用爬虫替代
     '''mysql = pymysql.connect("localhost", "root", "mysqldatabase", "corpus", charset='utf8')
@@ -79,12 +75,11 @@ def cluster(eventname):
 
     # 每个cluster的article数对应关系
     articleNumDict = {}
-    for label in af.labels_:# label是数字，cluster的id
+    for label in af.labels_:  # label是数字，cluster的id
         if label in articleNumDict.keys():
-            articleNumDict[label] = articleNumDict[label]+1
+            articleNumDict[label] = articleNumDict[label] + 1
         else:
-            articleNumDict[label]=0
-
+            articleNumDict[label] = 0
 
     # event写入数据库
     event = Event(eventName=eventname, reportVer=1, categoryNum=n_cluster, searchNum=1)
@@ -98,18 +93,19 @@ def cluster(eventname):
             print(' %s' % terms[ind], end='')
             featurelist = featurelist + " " + terms[ind]
         print()
-        category = Category(eventId=event,featureList=featurelist,reportVer=1,articleNum=articleNumDict[i])
+        category = Category(eventId=event, featureList=featurelist, reportVer=1, articleNum=articleNumDict[i])
         category.save()
         categories.append(category)
     print(af.labels_)
 
-
     # article写入数据库
-    label_index = 0 # af.labels的index
+    label_index = 0  # af.labels的index
     for articleresult in articleresults:
-        article = Article(categoryId=categories[af.labels_[label_index]],title=articleresult['title'], content=articleresult['content'], url=articleresult["webpageUrl"], pv=300)
+        article = Article(categoryId=categories[af.labels_[label_index]], title=articleresult['title'],
+                          content=articleresult['content'], url=articleresult["webpageUrl"], pv=300)
         article.save()
-        label_index = label_index+1
+        label_index = label_index + 1
+
 '''
     for c in cursor.fetchall():
         article = Article(categoryId=categories[af.labels_[label_index]],title=c['title'], content=c['content'], url=c["url"], pv=300)  # 这里pv需要修改
