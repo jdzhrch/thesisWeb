@@ -66,16 +66,19 @@ def cluster(eventname):
                                  use_idf=True)
     X = vectorizer.fit_transform(data)
     dictionary = dict(zip(vectorizer.vocabulary_.values(), vectorizer.vocabulary_.keys()))
-    # km = KMeans(n_clusters=4, init='k-means++', max_iter=100, n_init=1)
-    af = AffinityPropagation().fit(X)
-    n_cluster = len(af.cluster_centers_indices_)
-    order_centroids_tmp = af.cluster_centers_.toarray()
+    '''n_cluster = 4
+    clusterAlgorithm = KMeans(n_clusters=n_cluster, init='k-means++', max_iter=100, n_init=1)
+    clusterAlgorithm.fit(X)
+    order_centroids=clusterAlgorithm.cluster_centers_.argsort()[:, ::-1]'''
+    clusterAlgorithm = AffinityPropagation(preference=-4.4).fit(X)# preference在-5到-3之间表现较好
+    n_cluster = len(clusterAlgorithm.cluster_centers_indices_)
+    order_centroids_tmp = clusterAlgorithm.cluster_centers_.toarray()
     order_centroids = order_centroids_tmp.argsort()[:, ::-1]
     terms = vectorizer.get_feature_names()
 
     # 每个cluster的article数对应关系
     articleNumDict = {}
-    for label in af.labels_:  # label是数字，cluster的id
+    for label in clusterAlgorithm.labels_:  # label是数字，cluster的id
         if label in articleNumDict.keys():
             articleNumDict[label] = articleNumDict[label] + 1
         else:
@@ -85,30 +88,30 @@ def cluster(eventname):
     event = Event(eventName=eventname, reportVer=1, categoryNum=n_cluster, searchNum=1)
     event.save()
     # category写入数据库
-    categories = []
+    categories = []# category列表，用于作为article的外键
     for i in range(n_cluster):
         print("Cluster %d:" % i, end='')
         featurelist = ""
         for ind in order_centroids[i, :10]:
             print(' %s' % terms[ind], end='')
-            featurelist = featurelist + " " + terms[ind]
+            featurelist = featurelist + "+" + terms[ind]+"\n"
         print()
         category = Category(eventId=event, featureList=featurelist, reportVer=1, articleNum=articleNumDict[i])
         category.save()
         categories.append(category)
-    print(af.labels_)
+    print(clusterAlgorithm.labels_)
 
     # article写入数据库
-    label_index = 0  # af.labels的index
+    label_index = 0  # clusterAlgorithm.labels的index
     for articleresult in articleresults:
-        article = Article(categoryId=categories[af.labels_[label_index]], title=articleresult['title'],
-                          content=articleresult['content'], url=articleresult["webpageUrl"], pv=300)
+        article = Article(categoryId=categories[clusterAlgorithm.labels_[label_index]], title=articleresult['title'],
+                          content=articleresult['content'], url=articleresult["webpageUrl"], published=articleresult["published"])
         article.save()
         label_index = label_index + 1
 
 '''
     for c in cursor.fetchall():
-        article = Article(categoryId=categories[af.labels_[label_index]],title=c['title'], content=c['content'], url=c["url"], pv=300)  # 这里pv需要修改
+        article = Article(categoryId=categories[clusterAlgorithm.labels_[label_index]],title=c['title'], content=c['content'], url=c["url"], published=300)  # article是否需要pv
         article.save()
         label_index = label_index+1
 '''

@@ -25,8 +25,8 @@
     <show-object-properties value="true" />
     <loaded-nodes>
       <connection connection-id="49e300ed-1d04-42d9-8402-9ce30dd99898">
-        <schema name="corpus" object-types="table, view" />
-        <schema name="django" object-types="table, view" />
+        <schema name="corpus" object-types="view, table" />
+        <schema name="django" object-types="view, table" />
       </connection>
     </loaded-nodes>
   </component>
@@ -49,6 +49,9 @@
   <component name="DBNavigator.Project.EditorStateManager">
     <last-used-providers />
   </component>
+  <component name="DBNavigator.Project.FileConnectionMappingManager">
+    <mapping file-url="file://$PROJECT_DIR$/multiDimEvents/清空数据库.sql" connection-id="49e300ed-1d04-42d9-8402-9ce30dd99898" session-id="MAIN" current-schema="django" />
+  </component>
   <component name="DBNavigator.Project.MethodExecutionManager">
     <method-browser />
     <execution-history>
@@ -65,7 +68,9 @@
     <filters />
   </component>
   <component name="DBNavigator.Project.ScriptExecutionManager" clear-outputs="true">
-    <recently-used-interfaces />
+    <recently-used-interfaces>
+      <mapping database-type="MYSQL" interface-id="DEFAULT" />
+    </recently-used-interfaces>
   </component>
   <component name="DBNavigator.Project.Settings">
     <connections>

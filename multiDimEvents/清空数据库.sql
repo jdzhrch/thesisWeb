@@ -1,4 +1,4 @@
-DELETE FROM `django`.`multidimevents_userhistory`;
-DELETE FROM `django`.`multidimevents_article`;
-DELETE FROM `django`.`multidimevents_category`;
-DELETE FROM `django`.`multidimevents_event`;
+DELETE FROM `multidimevents_userhistory`;
+DELETE FROM `multidimevents_article`;
+DELETE FROM `multidimevents_category`;
+DELETE FROM `multidimevents_event`;

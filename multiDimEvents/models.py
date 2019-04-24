@@ -34,4 +34,4 @@ class Article(models.Model):
     title = models.CharField(max_length=1000)
     url = models.CharField(max_length=400)
     content = models.TextField(max_length=1000000)
-    pv = models.IntegerField(default=0)
+    published = models.CharField(default="2019-04-23 18:43:27",max_length=100)
