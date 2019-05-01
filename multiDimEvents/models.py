@@ -35,3 +35,6 @@ class Article(models.Model):
     url = models.CharField(max_length=400)
     content = models.TextField(max_length=1000000)
     published = models.CharField(default="2019-04-23 18:43:27",max_length=100)
+
+class HotNews(models.Model):
+    eventId = models.ForeignKey(Event, on_delete=models.CASCADE)

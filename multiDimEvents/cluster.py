@@ -7,7 +7,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 import pymysql
 
 from multiDimEvents import crawler
-from multiDimEvents.models import Event, Article, Category
+from multiDimEvents.models import Event, Article, Category, HotNews
 
 '''
 def to_cut_chinese(dm: list) -> list:
@@ -37,13 +37,14 @@ def to_cut_chinese(dm: list) -> list:
 '''
 
 
-def cluster(eventname):
+def cluster(eventname,ishot):
     """
-        将数据源中的中文文本分词后以空格连接，用于sklearn的分词
-        :param dm: str的list，每个str是一个article的content
-        :return: numpy形式的词语-文本矩阵
+        聚类函数
+        :param eventname:事件名称  ishot：是否热点新闻
         """
     articleresults = crawler.crawler(eventname)
+    if(articleresults == []):
+        return
     dm = [articleresult["title"] + articleresult["content"] for articleresult in articleresults]
 
     # 以下应该用爬虫替代
@@ -61,10 +62,14 @@ def cluster(eventname):
         words = " ".join(seglist)
         data.append(words)
 
+    # 参数设置需要注意，如果事件相关文章只有一篇，例如“外国人说“漏电式”东北话走红”则会出问题
     vectorizer = TfidfVectorizer(max_df=0.5, max_features=10000,
                                  min_df=2, stop_words='english',
                                  use_idf=True)
-    X = vectorizer.fit_transform(data)
+    try:
+        X = vectorizer.fit_transform(data)
+    except:
+        return
     dictionary = dict(zip(vectorizer.vocabulary_.values(), vectorizer.vocabulary_.keys()))
     '''n_cluster = 4
     clusterAlgorithm = KMeans(n_clusters=n_cluster, init='k-means++', max_iter=100, n_init=1)
@@ -87,6 +92,9 @@ def cluster(eventname):
     # event写入数据库
     event = Event(eventName=eventname, reportVer=1, categoryNum=n_cluster, searchNum=1)
     event.save()
+    if(ishot):
+        hotNews = HotNews(eventId=event)
+        hotNews.save()
     # category写入数据库
     categories = []# category列表，用于作为article的外键
     for i in range(n_cluster):
