@@ -25,8 +25,8 @@
     <show-object-properties value="true" />
     <loaded-nodes>
       <connection connection-id="49e300ed-1d04-42d9-8402-9ce30dd99898">
-        <schema name="corpus" object-types="table, view" />
-        <schema name="django" object-types="table, view" />
+        <schema name="corpus" object-types="view, table" />
+        <schema name="django" object-types="view, table" />
       </connection>
     </loaded-nodes>
   </component>

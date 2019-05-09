@@ -1,41 +1,29 @@
-import re
+import traceback
 
 import jieba
-import requests
+from matplotlib import pyplot
 from sklearn.cluster import KMeans, AffinityPropagation
 from sklearn.feature_extraction.text import TfidfVectorizer
-import pymysql
+from sklearn.metrics import silhouette_score
 
-from multiDimEvents import crawler
+from multiDimEvents.utils import crawler
 from multiDimEvents.models import Event, Article, Category, HotNews
+import os
 
-'''
-def to_cut_chinese(dm: list) -> list:
+def getStopWords():
     """
-    将数据源中的中文文本分词后以空格连接，用于sklearn的分词
-    :param dm: str的list，每个str是一个article的content
-    :return: numpy形式的词语-文本矩阵
-    """
-    # 以下应该用爬虫替代
-    mysql = pymysql.connect("localhost", "root", "mysqldatabase", "corpus", charset='utf8')
-    cursor = mysql.cursor(cursor=pymysql.cursors.DictCursor)
-    cursor.execute("SELECT `title`, `content` FROM `news` limit 10")
-    dm = [c["title"] + c["content"] for c in cursor.fetchall()]
+        从停用词文件获取停用词列表
+        :return stopwordslist:停用词list
+        """
 
-    # 将event写入数据库
-    event = Event(eventName="荷兰飞机失事",reportVer=1,categoryNum=0,searchNum=1)
-    event.save()
-    eventid = event.id
-
-    # 将一篇分词后的单词集合重新用空格分开，合成字符串，供sklearn调用的接口进行处理
-    data = []
-    for line in dm:
-        seglist = jieba.cut(line)
-        words = " ".join(seglist)
-        data.append(words)
-    return data
-'''
-
+    cwd = os.getcwd()
+    print("当前工作路径 '%s'" % cwd)# E:\GitHub\thesisWeb
+    stopwordpath = "multiDimEvents/stopwords/baidustopwordlist.txt"
+    stopword_dic = open(stopwordpath, 'r',encoding='UTF-8')
+    stopword_content = stopword_dic.read()
+    stopwordslist = stopword_content.splitlines()
+    stopword_dic.close()
+    return stopwordslist
 
 def cluster(eventname,ishot):
     """
@@ -47,14 +35,6 @@ def cluster(eventname,ishot):
         return
     dm = [articleresult["title"] + articleresult["content"] for articleresult in articleresults]
 
-    # 以下应该用爬虫替代
-    '''mysql = pymysql.connect("localhost", "root", "mysqldatabase", "corpus", charset='utf8')
-    cursor = mysql.cursor(cursor=pymysql.cursors.DictCursor)
-    cursor.execute("SELECT `title`, `content` FROM `news` limit 10")
-    dm = [c["title"] + c["content"] for c in cursor.fetchall()]
-    cursor.execute("SELECT  `url`, `title`, `content` FROM `news` limit 10")# 注意cursor的用法
-'''
-
     # 将一篇分词后的单词集合重新用空格分开，合成字符串，供tfidfvectorizer进行处理
     data = []
     for line in dm:
@@ -62,14 +42,41 @@ def cluster(eventname,ishot):
         words = " ".join(seglist)
         data.append(words)
 
+
+
     # 参数设置需要注意，如果事件相关文章只有一篇，例如“外国人说“漏电式”东北话走红”则会出问题
     vectorizer = TfidfVectorizer(max_df=0.5, max_features=10000,
-                                 min_df=2, stop_words='english',
+                                 min_df=2, stop_words=getStopWords(),
                                  use_idf=True)
     try:
         X = vectorizer.fit_transform(data)
     except:
+        traceback.print_exc()
         return
+
+    ''''# 肘方法，绘图
+    SSE = []  # 存放每次结果的误差平方和
+    for k in range(1, 9):
+        estimator = KMeans(n_clusters=k)  # 构造聚类器
+        estimator.fit(X)
+        SSE.append(estimator.inertia_)
+    xxxx = range(1, 9)
+    pyplot.xlabel('k')
+    pyplot.ylabel('SSE')
+    pyplot.plot(xxxx, SSE, 'o-')
+    pyplot.show()
+
+    Scores = []  # 存放轮廓系数
+    for k in range(2, 19):
+        estimator = KMeans(n_clusters=k)  # 构造聚类器
+        estimator.fit(X)
+        Scores.append(silhouette_score(X,estimator.labels_, metric='euclidean'))
+    xxxx = range(2, 19)
+    pyplot.xlabel('k')
+    pyplot.ylabel('轮廓系数')
+    pyplot.plot(xxxx, Scores, 'o-')
+    pyplot.show()'''
+
     dictionary = dict(zip(vectorizer.vocabulary_.values(), vectorizer.vocabulary_.keys()))
     '''n_cluster = 4
     clusterAlgorithm = KMeans(n_clusters=n_cluster, init='k-means++', max_iter=100, n_init=1)
@@ -116,10 +123,3 @@ def cluster(eventname,ishot):
                           content=articleresult['content'], url=articleresult["webpageUrl"], published=articleresult["published"])
         article.save()
         label_index = label_index + 1
-
-'''
-    for c in cursor.fetchall():
-        article = Article(categoryId=categories[clusterAlgorithm.labels_[label_index]],title=c['title'], content=c['content'], url=c["url"], published=300)  # article是否需要pv
-        article.save()
-        label_index = label_index+1
-'''

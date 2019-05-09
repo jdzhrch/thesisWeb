@@ -3,10 +3,8 @@ import re
 import time
 from multiprocessing import Pool
 
-import jieba
 import requests
-from multiDimEvents.news import captureNews
-from multiDimEvents import news
+from multiDimEvents.utils.news import captureNews
 
 
 def getRidOfTag(originStr):
@@ -60,11 +58,14 @@ def crawlHotNews():
     return eventnamesCut'''
     return eventnames
 
+
 def crawler(eventname):
     oldtime = time.time()
     articleresults = multiprocessing.Manager().list()
-    pool = Pool(processes=10)
-    for pn in range(10):
+    # 每页开一个进程去爬
+    pagenumber = 10
+    pool = Pool(processes=pagenumber)
+    for pn in range(pagenumber):
         baiduUrl = "https://www.baidu.com/s?rtt=1&bsst=1&cl=2&tn=news&rsv_dl=ns_pc&word="+ eventname +"&pn="+ str(pn * 10)
         pool.apply_async(captureNews,(baiduUrl,articleresults))
     pool.close()

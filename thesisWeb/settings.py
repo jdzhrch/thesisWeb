@@ -40,7 +40,9 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'multiDimEvents.apps.MultidimeventsConfig',
     'rest_framework',
+    'django_apscheduler',
 ]
+
 
 REST_FRAMEWORK = {
     # Use Django's standard `django.contrib.auth` permissions,

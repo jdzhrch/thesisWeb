@@ -23,16 +23,6 @@ def processEvent(request):
     获得热点新闻，或创建一个新的 event。
     """
     if request.method == 'GET':
-        '''events = Event.objects.all()[0:10]
-        serializer = EventSerializer(events, many=True)'''
-        # 爬取热点事件，聚类并存入数据库
-        # todo 这里应该每天定时处理
-        '''HotNews.objects.all().delete()# 清空hotnews
-        eventnames = crawler.crawlHotNews()
-        print(eventnames)
-        for eventname in eventnames:
-            cluster.cluster(eventname,True)'''
-
         hotNews = HotNews.objects.all()
         hotNewsEventIds = list(hotNews.values('eventId'))
         queryOneFit = reduce(operator.or_, (Q(id__contains=hotNewsEventId['eventId']) for hotNewsEventId in hotNewsEventIds))

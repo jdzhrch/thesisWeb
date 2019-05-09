@@ -68,10 +68,12 @@ def captureNews(baiduUrl, articleresults):
                 if not published:
                     published = str(datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"))
 
+                published = published[0:10]+" "+published[11:19]# 去掉时间字符串中的T和Z
                 article = newspaper.Article(webpageUrl, language='zh', headers=headers)
                 article.download()
                 article.parse()
 
+                # 如果不是文字是视频，就continue
                 if article.text == "":
                     continue
                 captureTime = str(datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"))
@@ -79,10 +81,9 @@ def captureNews(baiduUrl, articleresults):
                         "resourse": resourse,
                         "title": title,
                         "webpageUrl": webpageUrl,
-                        "fromType": "7",
                         "captureTime": captureTime,
                         "published": published}
-                print(data["title"])
+                # print(data["title"])
                 articleresults.append(data)
             except newspaper.article.ArticleException:
                 continue
