@@ -1,9 +1,13 @@
+import heapq
+
 import gensim
 import jieba
 import os
-from sklearn.feature_extraction.text import TfidfVectorizer
-from gensim.models.doc2vec import Doc2Vec, LabeledSentence
 
+from sklearn.decomposition import LatentDirichletAllocation
+from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
+from gensim.models.doc2vec import Doc2Vec, LabeledSentence
+import numpy as np
 TaggededDocument = gensim.models.doc2vec.TaggedDocument
 
 
@@ -73,3 +77,47 @@ def vectorizeDOCTOVEC(articles):
         X.append(vector)
         i += 1
     return X
+
+def vectorizeLDAgensim(articles):
+    common_texts = []
+    for article in articles:
+        seglist = jieba.__lcut(article)
+        common_texts.append(seglist)
+    dic = gensim.corpora.Dictionary(common_texts)
+    corpus = [dic.doc2bow(text) for text in common_texts]
+
+    tfidf = gensim.models.TfidfModel(corpus)
+    corpus_tfidf = tfidf[corpus]
+    lda = gensim.models.LdaModel(corpus_tfidf, id2word=dic, num_topics=20, alpha='auto')
+    corpus_lda = lda[corpus_tfidf]
+    print(corpus_lda)
+
+def vectorizeLDAsklearn(articles):
+    data = []
+    for article in articles:
+        seglist = jieba.cut(article)
+        words = " ".join(seglist)
+        data.append(words)
+
+    # 参数设置需要注意，如果事件相关文章只有一篇，例如“外国人说“漏电式”东北话走红”则会出问题
+    vectorizer = TfidfVectorizer(max_df=0.5, max_features=10000,
+                                 min_df=2, stop_words=getStopWords(),
+                                 use_idf=True)
+    X = vectorizer.fit_transform(data)
+    terms = vectorizer.get_feature_names()
+
+    n_cluster = 4
+    lda = LatentDirichletAllocation(n_topics=n_cluster,
+                                    learning_offset=50.,
+                                    random_state=0)
+    docres = lda.fit_transform(X)
+    components = lda.components_
+    doc_maxtopic_list = []
+    for doc_topics_list in docres:
+        doc_maxtopic_list.append(np.argmax(doc_topics_list))
+    print(doc_maxtopic_list)
+    for i in range(n_cluster):
+        termindexes = np.argpartition(components[i], -10)[-10:]
+        print("Cluster %d:" % i, end='')
+        for ind in termindexes:
+            print(' %s' % terms[ind], end='')
