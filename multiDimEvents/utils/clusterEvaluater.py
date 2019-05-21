@@ -11,22 +11,22 @@ def clusterEvaluate(X, method):
     if method == "elbow":
         # 肘方法，绘图
         SSE = []  # 存放每次结果的误差平方和
-        for k in range(1, 25):
+        for k in range(1, 30):
             estimator = KMeans(n_clusters=k)  # 构造聚类器
             estimator.fit(X)
             SSE.append(estimator.inertia_)
-        xxxx = range(1, 25)
+        xxxx = range(1, 30)
         pyplot.xlabel('k')
         pyplot.ylabel('SSE')
         pyplot.plot(xxxx, SSE, 'o-')
         pyplot.show()
     elif method == "silhouette coefficient":
         Scores = []  # 存放轮廓系数
-        for k in range(2, 19):
+        for k in range(2, 30):
             estimator = KMeans(n_clusters=k)  # 构造聚类器
             estimator.fit(X)
             Scores.append(silhouette_score(X, estimator.labels_, metric='euclidean'))
-        xxxx = range(2, 19)
+        xxxx = range(2, 30)
         pyplot.xlabel('k')
         pyplot.ylabel('轮廓系数')
         pyplot.plot(xxxx, Scores, 'o-')

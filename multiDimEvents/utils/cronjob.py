@@ -9,4 +9,4 @@ def getHotNews():
     print(eventnames)
     # 因为这个不急，就不用多进程了
     for eventname in eventnames:
-        cluster.cluster(eventname,True)
+        cluster.cluster(eventname,True,"kmeans")

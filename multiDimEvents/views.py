@@ -24,11 +24,13 @@ try:
 
     # 'cron'方式循环，每天9:30:10执行,id为工作ID作为标记
     # ('scheduler',"interval", seconds=1)  #用interval方式循环，每一秒执行一次
-    @register_job(scheduler, 'cron', hour='13', minute='56', second='30', id='task_time')
+    @register_job(scheduler, 'cron', hour='15', minute='52', second='30', id='task_time')
     def test_job():
         print("开始定时任务")
         cronjob.getHotNews()
         # 监控任务
+
+
     register_events(scheduler)
     # 调度器开始
     scheduler.start()
@@ -51,12 +53,13 @@ def processEvent(request):
     if request.method == 'GET':
         hotNews = HotNews.objects.all()
         hotNewsEventIds = list(hotNews.values('eventId'))
-        if len(hotNewsEventIds)==0:
+        if len(hotNewsEventIds) == 0:
             none_result = Event.objects.filter(id=-1)
             serializer = EventSerializer(none_result, many=True)
             return Response(serializer.data)
         else:
-            queryOneFit = reduce(operator.or_, (Q(id__contains=hotNewsEventId['eventId']) for hotNewsEventId in hotNewsEventIds))
+            queryOneFit = reduce(operator.or_,
+                                 (Q(id__contains=hotNewsEventId['eventId']) for hotNewsEventId in hotNewsEventIds))
             eventsOneFit = Event.objects.filter(queryOneFit)
             serializer = EventSerializer(eventsOneFit, many=True)
             return Response(serializer.data)
@@ -64,7 +67,7 @@ def processEvent(request):
         eventname = request.data["eventname"]
         print(eventname)
         # 聚类
-        cluster.cluster(eventname, False)
+        cluster.cluster(eventname, False, "kmeans")
         return Response(status=status.HTTP_201_CREATED)
     return Response(status=status.HTTP_400_BAD_REQUEST)
 
@@ -78,20 +81,22 @@ def searchEvent(request):
     """
     if request.method == 'GET':
         searchkeyword = request.query_params.dict()['searchkeyword']
-        searchkeywords = list(filter(None, searchkeyword.split("+")))# filter函数能去除空字符串
+        searchkeywords = list(filter(None, searchkeyword.split("+")))  # filter函数能去除空字符串
         print(searchkeywords)
-        if searchkeywords==[]:
+        if searchkeywords == []:
             none_result = Event.objects.filter(id=-1)
             serializer = EventSerializer(none_result, many=True)
             return Response(serializer.data)
         else:
             # todo 所有关键词都要匹配到,只取出前10条
-            queryAllFit = reduce(operator.and_, (Q(eventName__contains=searchkeyword) for searchkeyword in searchkeywords))
-            eventsAllFit = Event.objects.filter(queryAllFit)#[:10]
+            queryAllFit = reduce(operator.and_,
+                                 (Q(eventName__contains=searchkeyword) for searchkeyword in searchkeywords))
+            eventsAllFit = Event.objects.filter(queryAllFit)  # [:10]
             # 只要有一个关键词匹配到,只取出前10条
-            queryOneFit = reduce(operator.or_, (Q(eventName__contains=searchkeyword) for searchkeyword in searchkeywords))
-            eventsOneFit = Event.objects.filter(queryOneFit)#[:10]
-            serializer = EventSerializer(eventsAllFit|eventsOneFit, many=True)
+            queryOneFit = reduce(operator.or_,
+                                 (Q(eventName__contains=searchkeyword) for searchkeyword in searchkeywords))
+            eventsOneFit = Event.objects.filter(queryOneFit)  # [:10]
+            serializer = EventSerializer(eventsAllFit | eventsOneFit, many=True)
             return Response(serializer.data)
     return Response(status=status.HTTP_400_BAD_REQUEST)
 
@@ -106,7 +111,7 @@ def processHistory(request):
         openid = request.query_params.dict()['openid']
         histories = UserHistory.objects.filter(openid=openid)
         queryresults = list(histories.values('eventId'))  # [{"eventId':1},]
-        if len(queryresults)==0:
+        if len(queryresults) == 0:
             none_result = Event.objects.filter(id=-1)
             serializer = EventSerializer(none_result, many=True)
             return Response(serializer.data)
@@ -123,7 +128,7 @@ def processHistory(request):
         openid = request.data["openid"]
         event = Event.objects.get(id=eventid)
         uh = UserHistory(eventId=event, openid=openid)
-        event.searchNum = event.searchNum + 1       # 搜索数加一
+        event.searchNum = event.searchNum + 1  # 搜索数加一
         event.save()
         uh.save()
         return Response(status=status.HTTP_201_CREATED)
@@ -133,7 +138,7 @@ def processHistory(request):
 @permission_classes((permissions.AllowAny,))
 def getCategory(request):
     """
-    根据eventid
+    根据eventid找categories
     """
     if request.method == 'GET':
         eventid = request.query_params.dict()['eventid']
@@ -147,7 +152,7 @@ def getCategory(request):
 @permission_classes((permissions.AllowAny,))
 def getArticle(request):
     """
-    根据eventid
+    根据categoryid找articles
     """
     if request.method == 'GET':
         categoryid = request.query_params.dict()['categoryid']

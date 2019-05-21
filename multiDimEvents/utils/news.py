@@ -73,8 +73,8 @@ def captureNews(baiduUrl, articleresults):
                 article.download()
                 article.parse()
 
-                # 如果不是文字是视频，就continue
-                if article.text == "":
+                # 如果不是文字是视频或别的内容，则text都是杂乱信息，就continue
+                if len(article.text) < 50:
                     continue
                 captureTime = str(datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"))
                 data = {"content": article.text,

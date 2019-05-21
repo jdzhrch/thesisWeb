@@ -26,7 +26,7 @@ def getStopWords():
     return stopwordslist
 
 
-def vectorizeBOW(articles):
+def vectorizeBOW(articles,method):
     """
         采用bog模型对文档集进行向量化
         目前用的是tfidf
@@ -40,11 +40,13 @@ def vectorizeBOW(articles):
         seglist = jieba.cut(article)
         words = " ".join(seglist)
         data.append(words)
-
-    # 参数设置需要注意，如果事件相关文章只有一篇，例如“外国人说“漏电式”东北话走红”则会出问题
-    vectorizer = TfidfVectorizer(max_df=0.5, max_features=10000,
-                                 min_df=2, stop_words=getStopWords(),
-                                 use_idf=True)
+    if method == "tfidf":
+        # 参数设置需要注意，如果事件相关文章只有一篇，例如“外国人说“漏电式”东北话走红”则会出问题
+        vectorizer = TfidfVectorizer(max_df=0.5, max_features=10000,
+                                     min_df=2, stop_words=getStopWords(),
+                                     use_idf=True)
+    elif method=="count":
+        vectorizer = CountVectorizer(stop_words=getStopWords())
     X = vectorizer.fit_transform(data)
     terms = vectorizer.get_feature_names()
     # dictionary = dict(zip(vectorizer.vocabulary_.values(), vectorizer.vocabulary_.keys()))
@@ -91,33 +93,3 @@ def vectorizeLDAgensim(articles):
     lda = gensim.models.LdaModel(corpus_tfidf, id2word=dic, num_topics=20, alpha='auto')
     corpus_lda = lda[corpus_tfidf]
     print(corpus_lda)
-
-def vectorizeLDAsklearn(articles):
-    data = []
-    for article in articles:
-        seglist = jieba.cut(article)
-        words = " ".join(seglist)
-        data.append(words)
-
-    # 参数设置需要注意，如果事件相关文章只有一篇，例如“外国人说“漏电式”东北话走红”则会出问题
-    vectorizer = TfidfVectorizer(max_df=0.5, max_features=10000,
-                                 min_df=2, stop_words=getStopWords(),
-                                 use_idf=True)
-    X = vectorizer.fit_transform(data)
-    terms = vectorizer.get_feature_names()
-
-    n_cluster = 4
-    lda = LatentDirichletAllocation(n_topics=n_cluster,
-                                    learning_offset=50.,
-                                    random_state=0)
-    docres = lda.fit_transform(X)
-    components = lda.components_
-    doc_maxtopic_list = []
-    for doc_topics_list in docres:
-        doc_maxtopic_list.append(np.argmax(doc_topics_list))
-    print(doc_maxtopic_list)
-    for i in range(n_cluster):
-        termindexes = np.argpartition(components[i], -10)[-10:]
-        print("Cluster %d:" % i, end='')
-        for ind in termindexes:
-            print(' %s' % terms[ind], end='')

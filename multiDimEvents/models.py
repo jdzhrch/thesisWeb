@@ -28,13 +28,13 @@ class Category(models.Model):
     articleNum = models.IntegerField(default=0)
 
 
-#
 class Article(models.Model):
     categoryId = models.ForeignKey(Category, on_delete=models.CASCADE)
     title = models.CharField(max_length=1000)
     url = models.CharField(max_length=400)
     content = models.TextField(max_length=1000000)
     published = models.CharField(default="2019-04-23 18:43:27",max_length=100)
+
 
 class HotNews(models.Model):
     eventId = models.ForeignKey(Event, on_delete=models.CASCADE)
