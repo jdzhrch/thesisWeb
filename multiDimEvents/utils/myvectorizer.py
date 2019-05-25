@@ -37,7 +37,7 @@ def vectorizeBOW(articles,method):
     # 将一篇分词后的单词集合重新用空格分开，合成字符串，供tfidfvectorizer进行处理
     data = []
     for article in articles:
-        seglist = jieba.cut(article)
+        seglist = jieba.cut(article, cut_all=False, HMM=True)
         words = " ".join(seglist)
         data.append(words)
     if method == "tfidf":

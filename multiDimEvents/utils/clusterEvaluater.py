@@ -1,6 +1,8 @@
 from sklearn.cluster import KMeans
 from matplotlib import pyplot
 from sklearn.metrics import silhouette_score
+from sqlalchemy.dialects.mysql import pymysql
+
 
 def clusterEvaluate(X, method):
     """
@@ -31,3 +33,9 @@ def clusterEvaluate(X, method):
         pyplot.ylabel('轮廓系数')
         pyplot.plot(xxxx, Scores, 'o-')
         pyplot.show()
+
+def evaluate():
+    mysql = pymysql.connect("localhost", "root", "mysqldatabase", "corpus", charset='utf8')
+    cursor = mysql.cursor(cursor=pymysql.cursors.DictCursor)
+    cursor.execute("SELECT `title`, `content` FROM `news` limit 10")
+    data = [c["title"] + c["content"] for c in cursor.fetchall()]

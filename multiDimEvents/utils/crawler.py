@@ -52,7 +52,7 @@ def crawlHotNews():
     '''切词
     eventnamesCut = []
     for eventname in eventnames:
-        keyList = jieba.cut(eventname)
+        keyList = jieba.cut(eventname,cut_all=False, HMM=True)
         eventnameCut = "+".join(keyList)
         eventnamesCut.append(eventnameCut)
     return eventnamesCut'''
@@ -76,11 +76,10 @@ def crawler(eventname):
     '''
     articleresults = []
     for pn in range(10):
-        baiduUrl = "https://www.baidu.com/s?rtt=1&bsst=1&cl=2&tn=news&rsv_dl=ns_pc&word=" + eventname + "&pn=" + str(
-            pn * 10)
+        baiduUrl = "https://www.baidu.com/s?rtt=1&bsst=1&cl=2&tn=news&rsv_dl=ns_pc&word=" + eventname + "&x_bfe_rqs=03E80&tngroupname=organic_news&pn=" + str(pn * 10)
         captureNews(baiduUrl, articleresults)
     for articleresult in articleresults:
         articleresult["title"] = getRidOfTag(articleresult["title"])
-        articleresult["content"] = getRidOfTag(articleresult["content"])'''
-    print("花的秒数",time.time()-oldtime)
+        articleresult["content"] = getRidOfTag(articleresult["content"])
+    print("花的秒数",time.time()-oldtime)'''
     return articleresults

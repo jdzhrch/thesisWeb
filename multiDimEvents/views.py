@@ -67,7 +67,7 @@ def processEvent(request):
         eventname = request.data["eventname"]
         print(eventname)
         # 聚类
-        cluster.cluster(eventname, False, "kmeans")
+        cluster.cluster(eventname, False, "ap")
         return Response(status=status.HTTP_201_CREATED)
     return Response(status=status.HTTP_400_BAD_REQUEST)
 

@@ -1,4 +1,5 @@
 import multiprocessing
+import traceback
 from multiprocessing import Pool
 
 import requests
@@ -13,7 +14,6 @@ import urllib3
 
 headers = {
     'pragma': "no-cache",
-    'accept-encoding': "gzip, deflate, br",
     'accept-language': "en,zh-CN,zh;q=0.8",
     'upgrade-insecure-requests': "1",
     'user-agent': "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/59.0.3071.115 Safari/537.36",
@@ -26,15 +26,15 @@ headers = {
 
 def captureNews(baiduUrl, articleresults):
     try:
-        r = requests.get(baiduUrl, timeout=20, headers=headers)
+        r = requests.get(baiduUrl, timeout=200, headers=headers)
     except requests.exceptions.ConnectionError:
         return ""
     except requests.exceptions.ReadTimeout:
         return ""
-
     if r.status_code == 200:
         soup = BeautifulSoup(r.text, 'lxml')
-        for one in soup.find_all(attrs={'class': 'result'}):
+        find_all = soup.find_all(attrs={'class': 'result'})
+        for one in find_all:
             title = (one.select('a')[0].get_text()).replace("\n", "").strip()
             webpageUrl = (one.select('a')[0].attrs['href']).replace("\n", "").strip()
 
@@ -68,13 +68,13 @@ def captureNews(baiduUrl, articleresults):
                 if not published:
                     published = str(datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"))
 
-                published = published[0:10]+" "+published[11:19]# 去掉时间字符串中的T和Z
+                published = published[0:10] + " " + published[11:19]  # 去掉时间字符串中的T和Z
                 article = newspaper.Article(webpageUrl, language='zh', headers=headers)
                 article.download()
                 article.parse()
 
                 # 如果不是文字是视频或别的内容，则text都是杂乱信息，就continue
-                if len(article.text) < 50:
+                if len(article.text) < 30:
                     continue
                 captureTime = str(datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"))
                 data = {"content": article.text,

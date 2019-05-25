@@ -45,7 +45,7 @@ def cluster(eventname, ishot, method):
         n_cluster = len(clusterAlgorithm.cluster_centers_indices_)
         order_centroids_tmp = clusterAlgorithm.cluster_centers_.toarray()
         order_centroids = order_centroids_tmp.argsort()[:, ::-1]
-    eventname += method
+    # eventname += method
     print(clusterAlgorithm.labels_)
 
     ''' 

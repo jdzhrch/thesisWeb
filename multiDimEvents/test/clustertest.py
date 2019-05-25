@@ -12,7 +12,7 @@ dm = [articleresult["title"] + articleresult["content"] for articleresult in art
 
 data = []
 for line in dm:
-    seglist = jieba.cut(line)
+    seglist = jieba.cut(line, cut_all=False, HMM=True)
     words = " ".join(seglist)
     data.append(words)
 

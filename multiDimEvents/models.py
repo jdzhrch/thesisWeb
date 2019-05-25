@@ -36,5 +36,6 @@ class Article(models.Model):
     published = models.CharField(default="2019-04-23 18:43:27",max_length=100)
 
 
+# 存储热门事件的eventid
 class HotNews(models.Model):
     eventId = models.ForeignKey(Event, on_delete=models.CASCADE)
